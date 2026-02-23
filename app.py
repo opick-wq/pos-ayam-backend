@@ -6,7 +6,7 @@ import random
 import string
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pos_system.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -60,6 +60,18 @@ with app.app_context():
 # ==========================================
 # 2. API ENDPOINTS
 # ==========================================
+@app.route('/api/login', methods=['POST', 'OPTIONS'])
+def login():
+    # Tangani Preflight Request secara eksplisit jika diperlukan (meskipun CORS(app) biasanya sudah cukup)
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
+
+    data = request.json
+    if data and data.get('email') == 'admin@ayamcabeijo.com' and data.get('password') == 'admin123':
+        return jsonify({"token": "auth-token-valid-123"}), 200
+    
+    return jsonify({"error": "Email atau password salah!"}), 401
+
 
 @app.route('/api/products', methods=['GET', 'POST'])
 def handle_products():
